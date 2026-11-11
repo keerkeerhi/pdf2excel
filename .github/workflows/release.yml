@@ -47,7 +47,7 @@ jobs:
         include:
           - platform: windows-latest
             args: --bundles nsis
-          - platform: macos-14
+          - platform: macos-15-intel
             target: x86_64-apple-darwin
             args: --target x86_64-apple-darwin --bundles dmg
     runs-on: ${{ matrix.platform }}

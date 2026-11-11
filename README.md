@@ -11,7 +11,7 @@ npm run tauri dev
 
 ## 打包
 
-GitHub Actions 会在推送 `v*` Tag 后自动生成 macOS Intel DMG 和 Windows x64 NSIS 安装包，并发布 GitHub Release。发布前先把 `package.json`、`package-lock.json`、`src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml` 的版本号统一递增，提交并推送，然后创建对应 Tag。workflow 会核对这四处版本和 Tag，并确认 updater Secret 已设置，否则停止发布。
+GitHub Actions 会在推送 `v*` Tag 后自动生成 macOS Intel DMG 和 Windows x64 NSIS 安装包，并发布 GitHub Release。Intel Mac 使用 `macos-15-intel` runner，避免自动选择 ARM runner。发布前先把 `package.json`、`package-lock.json`、`src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml` 的版本号统一递增，提交并推送，然后创建对应 Tag。workflow 会核对这四处版本和 Tag，并确认 updater Secret 已设置，否则停止发布。
 
 ```sh
 # 例如把三个版本号更新为 0.1.1 并提交后：
@@ -20,7 +20,7 @@ git push origin main
 git push origin v0.1.1
 ```
 
-也可以在 GitHub 仓库的 Actions 页面手动运行 `Release PDF Table Workshop`，输入已提交的版本 Tag。Windows 构建在 Windows runner 上执行，Intel Mac 构建在 `macos-14` runner 上交叉编译。
+也可以在 GitHub 仓库的 Actions 页面手动运行 `Release PDF Table Workshop`，输入已提交的版本 Tag。Windows 构建在 Windows runner 上执行，Intel Mac 构建在 Intel runner 上执行。本 workflow 不构建 Android 包。
 
 ### 自动更新签名
 
