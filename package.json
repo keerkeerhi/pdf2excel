@@ -1,11 +1,13 @@
 {
   "name": "pdf-table-to-excel",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vue-tsc --noEmit && vite build",
+    "sync-version": "node scripts/sync-version.mjs",
+    "pretauri": "npm run sync-version",
     "tauri": "tauri"
   },
   "dependencies": {

@@ -11,13 +11,16 @@ npm run tauri dev
 
 ## 打包
 
-GitHub Actions 会在推送 `v*` Tag 后自动生成 macOS Intel DMG 和 Windows x64 NSIS 安装包，并发布 GitHub Release。Intel Mac 使用 `macos-15-intel` runner，避免自动选择 ARM runner。发布前先把 `package.json`、`package-lock.json`、`src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml` 的版本号统一递增，提交并推送，然后创建对应 Tag。workflow 会核对这四处版本和 Tag，并确认 updater Secret 已设置，否则停止发布。
+GitHub Actions 会在推送 `v*` Tag 后自动生成 macOS Intel DMG 和 Windows x64 NSIS 安装包，并发布 GitHub Release。Intel Mac 使用 `macos-15-intel` runner，避免自动选择 ARM runner。`package.json` 的 `version` 是唯一版本源；运行 `npm run sync-version` 会同步更新 npm 锁文件、Tauri 配置和 Cargo 清单。发布前修改 `package.json` 版本，运行同步命令并提交，然后创建同版本 Tag。workflow 会自动同步并检查 Tag，也会确认 updater Secret 已设置。
 
 ```sh
-# 例如把三个版本号更新为 0.1.1 并提交后：
-git tag v0.1.1
+# 修改 package.json 的 version 为 0.1.2 后：
+npm run sync-version
+git add package.json package-lock.json scripts/sync-version.mjs src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock
+git commit -m "chore: prepare release v0.1.2"
+git tag v0.1.2
 git push origin main
-git push origin v0.1.1
+git push origin v0.1.2
 ```
 
 也可以在 GitHub 仓库的 Actions 页面手动运行 `Release PDF Table Workshop`，输入已提交的版本 Tag。Windows 构建在 Windows runner 上执行，Intel Mac 构建在 Intel runner 上执行。本 workflow 不构建 Android 包。
@@ -30,7 +33,7 @@ Tauri updater 密钥对已生成：公钥已写入 `src-tauri/tauri.conf.json`�
 TAURI_SIGNING_PRIVATE_KEY=/Users/xbao/.tauri/pdf2excel-updater npm run tauri build
 ```
 
-发布前仍需把 `tauri.conf.json` 中的 `OWNER/REPO` 改成实际 GitHub 仓库，并在 Releases 上传签名产物及 `latest.json`，自动更新才会连通。私钥丢失后，已发布版本无法再用新的密钥签名更新。
+发布时 workflow 会在 `keerkeerhi/pdf2excel` 的 GitHub Releases 上传签名产物及 `latest.json`。私钥丢失后，已发布版本无法再用新的密钥签名更新。
 
 自动发布 workflow 需要仓库 Secret `TAURI_SIGNING_PRIVATE_KEY`。在本机项目目录运行下面的命令，将本机私钥内容安全地传给 GitHub CLI（命令不会把私钥打印到终端）：
 
