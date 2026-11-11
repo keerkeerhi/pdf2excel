@@ -35,7 +35,7 @@ const updatedCargoToml = cargoToml.replace(
 writeFileSync("src-tauri/Cargo.toml", updatedCargoToml);
 
 const cargoLock = readFileSync("src-tauri/Cargo.lock", "utf8");
-const cargoLockPattern = /(^name = "pdf-table-workshop"\nversion = ")[^"]+("$)/m;
+const cargoLockPattern = /(^name = "pdf-table-workshop"\r?\nversion = ")[^"]+("\r?$)/m;
 if (!cargoLockPattern.test(cargoLock)) throw new Error("Could not find pdf-table-workshop in src-tauri/Cargo.lock");
 const updatedCargoLock = cargoLock.replace(
   cargoLockPattern,
