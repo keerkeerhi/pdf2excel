@@ -1,6 +1,6 @@
 [package]
 name = "pdf-table-workshop"
-version = "0.1.5"
+version = "0.1.6"
 description = "Extract PDF tables to Excel"
 authors = ["you"]
 edition = "2021"
