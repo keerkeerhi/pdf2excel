@@ -1,0 +1,20 @@
+/node_modules/
+/dist/
+/target/
+/src-tauri/target/
+/src-tauri/gen/schemas/
+/.DS_Store
+/1.pdf
+
+# Local secrets and environment files
+/.env
+/.env.*
+!/.env.example
+/.tauri/
+/TAURI_SIGNING_PRIVATE_KEY
+/TAURI_SIGNING_PRIVATE_KEY.pub
+/*.key
+/*.key.pub
+
+# Local Rust/PDF caches
+/.cache/

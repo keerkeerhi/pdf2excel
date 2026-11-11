@@ -1,0 +1,47 @@
+# PDF 表格工坊
+
+Vue 3 + Tauri 2 桌面应用。参考 `../todolist` 的 Tauri 2 架构，支持 macOS Intel（`x86_64-apple-darwin`）和 Windows x64（NSIS）。
+
+## 开发
+
+```sh
+npm install
+npm run tauri dev
+```
+
+## 打包
+
+GitHub Actions 会在推送 `v*` Tag 后自动生成 macOS Intel DMG 和 Windows x64 NSIS 安装包，并发布 GitHub Release。发布前先把 `package.json`、`package-lock.json`、`src-tauri/tauri.conf.json` 和 `src-tauri/Cargo.toml` 的版本号统一递增，提交并推送，然后创建对应 Tag。workflow 会核对这四处版本和 Tag，并确认 updater Secret 已设置，否则停止发布。
+
+```sh
+# 例如把三个版本号更新为 0.1.1 并提交后：
+git tag v0.1.1
+git push origin main
+git push origin v0.1.1
+```
+
+也可以在 GitHub 仓库的 Actions 页面手动运行 `Release PDF Table Workshop`，输入已提交的版本 Tag。Windows 构建在 Windows runner 上执行，Intel Mac 构建在 `macos-14` runner 上交叉编译。
+
+### 自动更新签名
+
+Tauri updater 密钥对已生成：公钥已写入 `src-tauri/tauri.conf.json`；无密码私钥保存在仓库外的 `/Users/xbao/.tauri/pdf2excel-updater`，权限为仅当前用户可读写。打包时使用：
+
+```sh
+TAURI_SIGNING_PRIVATE_KEY=/Users/xbao/.tauri/pdf2excel-updater npm run tauri build
+```
+
+发布前仍需把 `tauri.conf.json` 中的 `OWNER/REPO` 改成实际 GitHub 仓库，并在 Releases 上传签名产物及 `latest.json`，自动更新才会连通。私钥丢失后，已发布版本无法再用新的密钥签名更新。
+
+自动发布 workflow 需要仓库 Secret `TAURI_SIGNING_PRIVATE_KEY`。在本机项目目录运行下面的命令，将本机私钥内容安全地传给 GitHub CLI（命令不会把私钥打印到终端）：
+
+```sh
+gh secret set TAURI_SIGNING_PRIVATE_KEY < /Users/xbao/.tauri/pdf2excel-updater
+```
+
+仓库 remote 已对应 `keerkeerhi/pdf2excel`，Updater endpoint 已指向该仓库的 `latest.json`。配置好 Secret 后，Tag 发布会同时上传签名安装包和 `latest.json`。
+
+这把密钥只用于 Tauri 自动更新签名，不是 Apple Developer ID 或 Windows Authenticode 代码签名证书。本机当前没有可用的 macOS 代码签名身份；macOS 公证和 Windows 发布者签名需要另行取得对应证书。
+
+## PDF 处理说明
+
+PDF.js 只负责页面预览和渲染。`pdf_oxide` 通过 Tauri Rust command 执行页面级表格检测；扫描页使用本地 PaddleOCR ONNX 中文模型识别文字坐标，再由 `pdf_oxide` 重建表格。模型已内置在安装包中（`src-tauri/resources/ocr-models/`，约 89MB），首次使用时复制到应用 cache 目录，无需联网下载；仅在内置文件缺失时才会回退到在线下载。识别过程在本机运行，不上传 PDF。结果会显示在可编辑表格中，并可批量导出为每个 PDF 独立的 Excel 工作表。其他识别器尚未接入。
