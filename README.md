@@ -27,10 +27,10 @@ git push origin v0.1.2
 
 ### 自动更新签名
 
-Tauri updater 密钥对已生成：公钥已写入 `src-tauri/tauri.conf.json`；无密码私钥保存在仓库外的 `/Users/xbao/.tauri/pdf2excel-updater`，权限为仅当前用户可读写。打包时使用：
+Tauri updater 密钥对已生成：公钥已写入 `src-tauri/tauri.conf.json`；无密码私钥保存在仓库外的 `/Users/apple/.tauri/pdf2excel-updater-2026`，权限为仅当前用户可读写。打包时使用：
 
 ```sh
-TAURI_SIGNING_PRIVATE_KEY=/Users/xbao/.tauri/pdf2excel-updater npm run tauri build
+TAURI_SIGNING_PRIVATE_KEY=/Users/apple/.tauri/pdf2excel-updater-2026 npm run tauri build
 ```
 
 发布时 workflow 会在 `keerkeerhi/pdf2excel` 的 GitHub Releases 上传签名产物及 `latest.json`。私钥丢失后，已发布版本无法再用新的密钥签名更新。
@@ -38,8 +38,10 @@ TAURI_SIGNING_PRIVATE_KEY=/Users/xbao/.tauri/pdf2excel-updater npm run tauri bui
 自动发布 workflow 需要仓库 Secret `TAURI_SIGNING_PRIVATE_KEY`。在本机项目目录运行下面的命令，将本机私钥内容安全地传给 GitHub CLI（命令不会把私钥打印到终端）：
 
 ```sh
-gh secret set TAURI_SIGNING_PRIVATE_KEY < /Users/xbao/.tauri/pdf2excel-updater
+gh secret set TAURI_SIGNING_PRIVATE_KEY < /Users/apple/.tauri/pdf2excel-updater-2026
 ```
+
+更新 GitHub Secret 后，Actions 才会使用新私钥进行发布签名。更换 updater 公钥后，已经安装的旧版本仍信任旧密钥，需手动安装新版本后才能继续自动更新。
 
 仓库 remote 已对应 `keerkeerhi/pdf2excel`，Updater endpoint 已指向该仓库的 `latest.json`。配置好 Secret 后，Tag 发布会同时上传签名安装包和 `latest.json`。
 
